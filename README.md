@@ -23,7 +23,7 @@ This is a blog project built with Python and Django, which includes the followin
 
 1.  Clone the repository:
     
-        git clone <[repository-url](https://github.com/Amaljithkaliyodath/my_blog-application-.git)>
+        git clone https://github.com/Amaljithkaliyodath/my_blog-application-.git
         cd blog_project
     
 2.  Create and activate a virtual environment:
