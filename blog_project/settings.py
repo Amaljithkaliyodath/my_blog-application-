@@ -74,17 +74,18 @@ WSGI_APPLICATION = 'blog_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'blog_db',
-        'USER': 'bloguser',
-        'PASSWORD': 'blog_password',
-        'HOST': 'localhost',
+        'NAME': os.getenv('blog_db'),
+        'USER': os.getenv('bloguser'),
+        'PASSWORD': os.getenv('blog_password'),
+        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
         'PORT': '3306',
     }
 }
-
 
 
 # Password validation
