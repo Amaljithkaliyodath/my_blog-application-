@@ -20,12 +20,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4d+p4jw2poh@1)-k=3@71axnn#=0o7)p3-v8esuddmae$ul*!5'
+# SECRET_KEY = 'django-insecure-4d+p4jw2poh@1)-k=3@71axnn#=0o7)p3-v8esuddmae$ul*!5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'web']
+
+
+
 
 
 # Application definition
@@ -48,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'blog_project.urls'
@@ -71,21 +75,39 @@ TEMPLATES = [
 WSGI_APPLICATION = 'blog_project.wsgi.application'
 
 
+import os
+
+
+
+SECRET_KEY = os.getenv('django-insecure-4d+p4jw2poh@1)-k=3@71axnn#=0o7)p3-v8esuddmae$ul*!5', 'fallback-secret-key-for-dev')
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
+
+
+
+
+from pathlib import Path
+import os
+import dj_database_url
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# ALLOWED_HOSTS configuration
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+WSGI_APPLICATION = 'blog_project.wsgi.application'
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-
-
+import os
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('blog_db'),
-        'USER': os.getenv('bloguser'),
-        'PASSWORD': os.getenv('blog_password'),
-        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
-        'PORT': '3306',
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL', 'mysql://bloguser:blog_password@localhost:3306/blog_db')
+    )
 }
+
 
 
 # Password validation
@@ -136,14 +158,8 @@ USE_TZ = True
 
 import os
 
-# Static files settings (you already have this configured)
-STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Media files settings for user-uploaded content like profile pictures
 MEDIA_URL = '/media/'  # URL to serve media files
@@ -152,6 +168,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory to store uploaded medi
 
 
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 
@@ -159,6 +176,16 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Ensure this path exists in your project directory
 ]
 
+
+import os
+
+# Static files settings
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Ensure this path exists and contains your static files
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -175,4 +202,14 @@ LOGOUT_REDIRECT_URL = 'signup'
 
 # settings.py
 AUTH_USER_MODEL = 'blog.CustomUser'
+# Security settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = os.getenv('DJANGO_SECURE_SSL_REDIRECT', 'False').lower() in ('true', '1', 't')
 
+# For managing X-Forwarded-Proto header (Heroku related)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+if not DEBUG:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
