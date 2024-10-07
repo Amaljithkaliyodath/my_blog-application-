@@ -56,6 +56,13 @@
             border-radius: 8px;
             width: 400px;
         }
+
+        #post-content {
+            min-height: 200px; /* Minimum height for the editor */
+            overflow-y: hidden; /* Hide vertical scrollbars */
+            white-space: pre-wrap; /* Ensure content wraps */
+            word-wrap: break-word; /* Ensure long words wrap correctly */
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -65,19 +72,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
-                    
                     <div class="flex-shrink-0 flex items-center">
                         <i class="fas fa-blog text-blue-600 text-3xl mr-2"></i>
-
                         <span class="text-2xl font-bold text-blue-600">My Blog</span>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <!-- Home link updated to point to index.html -->
                         <a href="{% url 'index' %}" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
-    
                         <a href="{% url 'my_blog' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">My Blog</a>
-    
-                        <!-- About link updated to point to create_blog URL -->
                         <a href="{% url 'create_blog' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">New Blog</a>
                     </div>
                 </div>
@@ -85,10 +86,8 @@
                     <div class="relative">
                         <button class="focus:outline-none" onclick="toggleProfileDropdown()">
                             {% if request.user.profile_picture %}
-                                <!-- Display profile image if available -->
                                 <img src="{{ request.user.profile_picture.url }}" alt="Profile" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md">
                             {% else %}
-                                <!-- Default Font Awesome user icon with smaller size (40x40) -->
                                 <i class="fas fa-user-circle text-gray-600" style="font-size: 40px;"></i>
                             {% endif %}
                         </button>
@@ -100,7 +99,6 @@
                             </form>
                         </div>
                     </div>
-                    
                 </div>
                 <div class="sm:hidden flex items-center">
                     <button onclick="toggleNavbar()" class="focus:outline-none">
@@ -113,10 +111,8 @@
         </div>
         <!-- Mobile Navigation -->
         <div id="mobile-nav" class="hidden sm:hidden bg-blue-600 text-white">
-            <!-- Home link for mobile updated -->
             <a href="{% url 'index' %}" class="block px-4 py-2 hover:bg-blue-500">Home</a>
             <a href="{% url 'my_blog' %}" class="block px-4 py-2 hover:bg-blue-500">My Blog</a>
-            <!-- About link for mobile updated -->
             <a href="{% url 'create_blog' %}" class="block px-4 py-2 hover:bg-blue-500">New Blog</a>
             <a href="{% url 'profile' %}" class="block px-4 py-2 hover:bg-blue-500">Profile</a>
             <form method="POST" action="{% url 'logout' %}">
@@ -149,21 +145,17 @@
             <div class="editor-container bg-white border border-gray-300 rounded-md shadow-sm mt-6">
                 <!-- Toolbar for text formatting -->
                 <div class="toolbar p-4 border-b border-gray-300 flex space-x-4">
-                    <!-- Bold, Italic, Underline -->
                     <button type="button" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" data-command="bold"><i class="fas fa-bold"></i></button>
                     <button type="button" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" data-command="italic"><i class="fas fa-italic"></i></button>
                     <button type="button" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" data-command="underline"><i class="fas fa-underline"></i></button>
-
-                    <!-- Text Alignment -->
                     <button type="button" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" data-command="justifyLeft"><i class="fas fa-align-left"></i></button>
                     <button type="button" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" data-command="justifyCenter"><i class="fas fa-align-center"></i></button>
                     <button type="button" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" data-command="justifyRight"><i class="fas fa-align-right"></i></button>
-
-                    <!-- Insert Image, Link -->
                     <button type="button" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" id="insert-image-btn"><i class="fas fa-image"></i></button>
                     <button type="button" class="px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" id="insert-link-btn"><i class="fas fa-link"></i></button>
                 </div>
-                <div contenteditable="true" id="post-content" class="w-full h-64 p-4 focus:outline-none border-0 resize-none focus:ring-0">
+
+                <div contenteditable="true" id="post-content" class="w-full h-auto p-4 focus:outline-none border-0 resize-none focus:ring-0">
                     {% if blog %}
                         {{ blog.content|safe }}
                     {% endif %}
@@ -328,6 +320,18 @@
                 }
                 linkModal.style.display = 'none';
             });
+
+            // Auto-resize functionality for contenteditable area
+            function autoResizeContent() {
+                postContent.style.height = 'auto'; // Reset height
+                postContent.style.height = (postContent.scrollHeight) + 'px'; // Set new height based on content
+            }
+
+            // Listen for input to adjust height dynamically
+            postContent.addEventListener('input', autoResizeContent);
+
+            // Initial resize on load in case content already exists
+            autoResizeContent();
         });
     </script>
 </body>
